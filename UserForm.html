@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>User List</title>
+</head>
+<style>
+    body {
+        background-color: #125dad;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* height: 100vh; */
+    }
+
+    .container1 {
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 20px;
+        width: 50%;
+        height: 94vh;
+
+    }
+
+    form {
+        display: flex;
+        /* justify-content: center; */
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    select {
+        margin-right: 10px;
+        padding: 5px;
+    }
+
+    button {
+        padding: 5px 10px;
+        background-color: #125dad;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        padding: 10px;
+        box-shadow: 0 4px 6px -6px #222;
+
+    }
+
+    li img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 10px;
+        border-color: rgb(0, 0, 0);
+        border-width: 1;
+    }
+
+    .delete-button {
+        background-color: #ff0000;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        padding: 9px;
+        margin-left: auto;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    input[type="text"],
+    select {
+        margin-right: 10px;
+        padding: 5px;
+        border-radius: 10px;
+        width: 20%;
+    }
+
+    input[type="submit"],
+    select {
+        margin-right: 10px;
+        padding: 5px;
+        border-radius: 10px;
+    }
+
+    .container2 {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
+<body>
+    <div class="container1">
+        <form id="user-form">
+            <input type="text" id="new-name" placeholder="Emri" required minlength="2">
+            <select id="user-role">
+                <option value="Student">Student</option>
+                <option value="Mesues">Mesues</option>
+            </select>
+            <button type="submit"> + SHTO</button>
+        </form>
+        <hr>
+        </hr>
+        <input type="text" id="search" placeholder="Kerko">
+        <ul id="user-list"></ul>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userForm = document.getElementById("user-form");
+            const userList = document.getElementById("user-list");
+            const searchInput = document.getElementById("search");
+            const newNameInput = document.getElementById("new-name");
+            const userRoleSelect = document.getElementById("user-role");
+
+            const users = JSON.parse(localStorage.getItem("users")) || [];
+
+            users.forEach(user => {
+                addUser(user.name, user.role);
+            });
+
+            userForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const newName = newNameInput.value.trim();
+                const userRole = userRoleSelect.value;
+
+                if (newName.length >= 2) {
+                    addUser(newName, userRole);
+                    newNameInput.value = "";
+
+                    users.push({ name: newName, role: userRole });
+                    localStorage.setItem("users", JSON.stringify(users));
+                } else {
+                    alert("Emri duhet te permbaje te pakten 2 karaktere.");
+                }
+            });
+
+            userList.addEventListener("click", function (e) {
+                if (e.target.classList.contains("delete-button")) {
+                    const userName = e.target.parentElement.querySelector(".name").textContent;
+                    users.splice(users.findIndex(user => user.name === userName), 1);
+                    localStorage.setItem("users", JSON.stringify(users));
+
+                    e.target.parentElement.remove();
+                }
+            });
+
+            searchInput.addEventListener("input", function () {
+                const searchTerm = searchInput.value.toLowerCase();
+                const users = userList.querySelectorAll("li");
+
+                users.forEach(function (user) {
+                    const userName = user.querySelector(".name").textContent.toLowerCase();
+                    const shouldDisplay = userName.includes(searchTerm);
+                    user.style.display = shouldDisplay ? "flex" : "none";
+                });
+            });
+
+            function addUser(newName, userRole) {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png" alt="Imazh">
+                    <div class="container2">
+                        <span class="name">${newName}</span>
+                        <span class="type">${userRole}</span>
+                    </div>
+                    <button class="delete-button">X</button>
+                `;
+
+                userList.appendChild(li);
+            }
+        });
+    </script>
+</body>
+
+</html>
